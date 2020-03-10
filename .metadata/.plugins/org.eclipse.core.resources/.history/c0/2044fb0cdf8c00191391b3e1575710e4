@@ -1,0 +1,394 @@
+package Parkinglot;
+
+import java.awt.Color;
+import java.awt.Dimension;
+import java.awt.FlowLayout;
+import java.awt.Graphics;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.text.SimpleDateFormat;
+import java.util.Date;
+
+import javax.swing.ImageIcon;
+import javax.swing.JButton;
+import javax.swing.JFrame;
+import javax.swing.JOptionPane;
+import javax.swing.JPanel;
+import javax.swing.JPasswordField;
+import javax.swing.JTextField;
+
+
+
+public class InsertCar extends JFrame implements ActionListener{
+	
+	private JTextField tf;
+	private JButton btn;
+	ParkingCar pc;
+	JButton btnR;
+	private String Area;
+	private long Inserttime;
+	private String InputTime; 
+
+	private JPanel pan; /////////////////////////오류나면 지워주세요
+	private JPanel insertMainpan;
+	public InsertCar(String title, ParkingCar parkingCar) {
+		 // BasicFrame 에서 basicFrame을 받아오고 여기서 쓸수 있ㅇ게 frm에다 저장
+		pc = parkingCar;
+		setTitle(title);
+		setSize(300, 100);
+		setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
+		setLocationRelativeTo(null);
+		//setLayout(null);
+		setUndecorated(true);
+		setResizable(false);
+		
+		ImageIcon img1 = new ImageIcon("img/InsertCar/insertmain.png"); 
+		
+		ImageIcon img = new ImageIcon("img/InsertCar/insertbtn.png"); 
+		ImageIcon imgrol = new ImageIcon("img/InsertCar/insertbtnrol.png"); 
+		ImageIcon imgpre = new ImageIcon("img/InsertCar/insertbtnpre.png"); 
+		
+		insertMainpan = new JPanel()
+		{
+	       	 public void paintComponent(Graphics g) {
+	             g.drawImage(img1.getImage(), 0, 0, null); //이미지 원래사이즈로 넣기
+	             
+	             Dimension d = getSize();
+	             g.drawImage(img1.getImage(), 0, 0, d.width, d.height, null); // 컴포넌트 사이즈에 맞게
+	             
+	     }};
+		insertMainpan.setLayout(null);
+		insertMainpan.setBackground(Color.white);
+		
+		tf = new JTextField(20);
+		tf.setBounds(12, 16, 180, 35);
+		
+		btn = new JButton(img);
+		btn.setRolloverIcon(imgrol);
+		btn.setPressedIcon(imgpre);
+		btn.setBounds(195, 16, 80, 35);
+		btn.setBorderPainted(false);
+		btn.setFocusPainted(false);
+		btn.setContentAreaFilled(false);
+		btn.setOpaque(false);
+	
+		btn.addActionListener(this);
+		
+		add(insertMainpan);
+		
+		insertMainpan.add(tf);
+		insertMainpan.add(btn);
+		
+		setVisible(true);
+
+		
+		
+	}
+
+	
+
+	@Override
+	public void actionPerformed(ActionEvent e) {
+		Object obj = e.getSource();
+		DB_Conn dc = new DB_Conn();
+		Area = pc.GetArea();
+		System.out.println(Area);
+		System.out.println(tf.getText());
+
+		
+	///////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+		ImageIcon img =new ImageIcon("img/parkingred2.png"); //////////////////////////////////////////////////오류나면 지워주세요
+		pan = new JPanel() {
+       	 public void paintComponent(Graphics g) {
+             g.drawImage(img.getImage(), 0, 0, null); //이미지 원래사이즈로 넣기
+             
+             Dimension d = getSize();
+             g.drawImage(img.getImage(), 0, 0, d.width, d.height, null); // 컴포넌트 사이즈에 맞게
+             
+     }};
+     
+     /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+		if(obj == btn) {
+			
+			if(7>tf.getText().length()) { //영진수정 차량번호  7자리 이상
+				JOptionPane.showMessageDialog(null, "7자리 입력해주세요","입력오류",JOptionPane.ERROR_MESSAGE);
+			}
+			
+		
+			else {
+				
+			
+			String sql = "select * from car where carnumber = '" + tf.getText() +"'";
+            System.out.println(sql);
+            ResultSet rs = dc.excuteQuery(sql);
+            
+			Inserttime = System.currentTimeMillis(); 
+	        SimpleDateFormat dayTime = new SimpleDateFormat("yyyy-MM-dd/HH:mm:ss");
+	        InputTime = dayTime.format(new Date(Inserttime));
+            //rs에 내용이 있는지 본다. 
+
+			if(tf.getText().isEmpty() == false) {
+	            try {
+        if(rs.next()) {
+            String id = rs.getString("carnumber"); //아이디를 가저온다.
+
+            if(tf.getText().equals(id)) {
+                JOptionPane.showMessageDialog(null, "중복입니다.","알림", JOptionPane.WARNING_MESSAGE);
+            }
+        }
+        else {
+        	
+        	
+	        String sql2 = "insert into car(space, carnumber, intime)" + " values('"+ Area + "', '"+ tf.getText() + "','"+ InputTime +"')";
+	        
+	       // String sql21 = "insert into log(space, carnumber, intime)" + " values('"+ Area + "', '"+ tf.getText() + "','"+ InputTime +"')";
+	        
+	    	System.out.println(sql2);
+			dc.executeUpdate(sql2);
+		
+	        
+			//System.out.println(sql21);
+			//dc.executeUpdate(sql21);
+		
+			if(Area.equals("A1")) {
+				pc.getLblCarA1().setText(tf.getText());
+		        pc.getLblCarTA1().setText(InputTime);
+		        pc.getBtnA1().setBackground(Color.RED);
+		        pc.getBtnA1().setEnabled(false);
+		        setVisible(false);
+			}
+			if(Area.equals("A2")) {
+				pc.getLblCarA2().setText(tf.getText());
+		        pc.getLblCarTA2().setText(InputTime);
+		        pc.getBtnA2().setBackground(Color.RED);
+		        pc.getBtnA2().setEnabled(false);
+		        setVisible(false);
+			}
+			if(Area.equals("A3")) {
+				pc.getLblCarA3().setText(tf.getText());
+		        pc.getLblCarTA3().setText(InputTime);
+		        pc.getBtnA3().setBackground(Color.RED);
+		        pc.getBtnA3().setEnabled(false);
+		        setVisible(false);
+			}
+			if(Area.equals("A4")) {
+				pc.getLblCarA4().setText(tf.getText());
+		        pc.getLblCarTA4().setText(InputTime);
+		        pc.getBtnA4().setBackground(Color.RED);
+		        pc.getBtnA4().setEnabled(false);
+		        setVisible(false);
+			}
+			if(Area.equals("A5")) {
+				pc.getLblCarA5().setText(tf.getText());
+		        pc.getLblCarTA5().setText(InputTime);
+		        pc.getBtnA5().setBackground(Color.RED);
+		        pc.getBtnA5().setEnabled(false);
+		        setVisible(false);
+			}
+			if(Area.equals("A6")) {
+				pc.getLblCarA6().setText(tf.getText());
+		        pc.getLblCarTA6().setText(InputTime);
+		        pc.getBtnA6().setBackground(Color.RED);
+		        pc.getBtnA6().setEnabled(false);
+		        setVisible(false);
+			}
+			if(Area.equals("A7")) {
+				pc.getLblCarA7().setText(tf.getText());
+		        pc.getLblCarTA7().setText(InputTime);
+		        pc.getBtnA7().setBackground(Color.RED);
+		        pc.getBtnA7().setEnabled(false);
+		        setVisible(false);
+			}
+			if(Area.equals("A8")) {
+				pc.getLblCarA8().setText(tf.getText());
+		        pc.getLblCarTA8().setText(InputTime);
+		        pc.getBtnA8().setBackground(Color.RED);
+		        pc.getBtnA8().setEnabled(false);
+		        setVisible(false);
+			}
+			if(Area.equals("A9")) {
+				pc.getLblCarA9().setText(tf.getText());
+		        pc.getLblCarTA9().setText(InputTime);
+		        pc.getBtnA9().setBackground(Color.RED);
+		        pc.getBtnA9().setEnabled(false);
+		        setVisible(false);
+			}
+			if(Area.equals("A10")) {
+				pc.getLblCarA10().setText(tf.getText());
+		        pc.getLblCarTA10().setText(InputTime);
+		        pc.getBtnA10().setBackground(Color.RED);
+		        pc.getBtnA10().setEnabled(false);
+		        setVisible(false);
+			}
+			if(Area.equals("B1")) {
+				pc.getLblCarB1().setText(tf.getText());
+		        pc.getLblCarTB1().setText(InputTime);
+		        pc.getBtnB1().setBackground(Color.RED);
+		        pc.getBtnB1().setEnabled(false);
+		        setVisible(false);
+			}
+			if(Area.equals("B2")) {
+				pc.getLblCarB2().setText(tf.getText());
+		        pc.getLblCarTB2().setText(InputTime);
+		        pc.getBtnB2().setBackground(Color.RED);
+		        pc.getBtnB2().setEnabled(false);
+		        setVisible(false);
+			}
+			if(Area.equals("B3")) {
+				pc.getLblCarB3().setText(tf.getText());
+		        pc.getLblCarTB3().setText(InputTime);
+		        pc.getBtnB3().setBackground(Color.RED);
+		        pc.getBtnB3().setEnabled(false);
+		        setVisible(false);
+			}
+			if(Area.equals("B4")) {
+				pc.getLblCarB4().setText(tf.getText());
+		        pc.getLblCarTB4().setText(InputTime);
+		        pc.getBtnB4().setBackground(Color.RED);
+		        pc.getBtnB4().setEnabled(false);
+		        setVisible(false);
+			}
+			if(Area.equals("B5")) {
+				pc.getLblCarB5().setText(tf.getText());
+		        pc.getLblCarTB5().setText(InputTime);
+		        pc.getBtnB5().setBackground(Color.RED);
+		        pc.getBtnB5().setEnabled(false);
+		        setVisible(false);
+			}
+			if(Area.equals("B6")) {
+				pc.getLblCarB6().setText(tf.getText());
+		        pc.getLblCarTB6().setText(InputTime);
+		        pc.getBtnB6().setBackground(Color.RED);
+		        pc.getBtnB6().setEnabled(false);
+		        setVisible(false);
+			}
+			if(Area.equals("B7")) {
+				pc.getLblCarB7().setText(tf.getText());
+		        pc.getLblCarTB7().setText(InputTime);
+		        pc.getBtnB7().setBackground(Color.RED);
+		        pc.getBtnB7().setEnabled(false);
+		        setVisible(false);
+			}
+			if(Area.equals("B8")) {
+				pc.getLblCarB8().setText(tf.getText());
+		        pc.getLblCarTB8().setText(InputTime);
+		        pc.getBtnB8().setBackground(Color.RED);
+		        pc.getBtnB8().setEnabled(false);
+		        setVisible(false);
+			}
+			if(Area.equals("B9")) {
+				pc.getLblCarB9().setText(tf.getText());
+		        pc.getLblCarTB9().setText(InputTime);
+		        pc.getBtnB9().setBackground(Color.RED);
+		        pc.getBtnB9().setEnabled(false);
+		        setVisible(false);
+			}
+			if(Area.equals("B10")) {
+				pc.getLblCarB10().setText(tf.getText());
+		        pc.getLblCarTB10().setText(InputTime);
+		        pc.getBtnB10().setBackground(Color.RED);
+		        pc.getBtnB10().setEnabled(false);
+		        setVisible(false);
+			}
+			
+			if(Area.equals("C1")) {
+				pc.getLblCarC1().setText(tf.getText());
+		        pc.getLblCarTC1().setText(InputTime);
+		        pc.getBtnC1().setBackground(Color.RED);
+		        pc.getBtnC1().setEnabled(false);
+		        setVisible(false);
+			}
+			
+			if(Area.equals("C2")) {
+				pc.getLblCarC2().setText(tf.getText());
+		        pc.getLblCarTC2().setText(InputTime);
+		        pc.getBtnC2().setBackground(Color.RED);
+		        pc.getBtnC2().setEnabled(false);
+		        setVisible(false);
+			}
+			if(Area.equals("C3")) {
+				pc.getLblCarC3().setText(tf.getText());
+		        pc.getLblCarTC3().setText(InputTime);
+		        pc.getBtnC3().setBackground(Color.RED);
+		        pc.getBtnC3().setEnabled(false);
+		        setVisible(false);
+			}
+			if(Area.equals("C3")) {
+				pc.getLblCarC3().setText(tf.getText());
+		        pc.getLblCarTC3().setText(InputTime);
+		        pc.getBtnC3().setBackground(Color.RED);
+		        pc.getBtnC3().setEnabled(false);
+		        setVisible(false);
+			}
+			if(Area.equals("C4")) {
+				pc.getLblCarC4().setText(tf.getText());
+		        pc.getLblCarTC4().setText(InputTime);
+		        pc.getBtnC4().setBackground(Color.RED);
+		        pc.getBtnC4().setEnabled(false);
+		        setVisible(false);
+			}
+			if(Area.equals("C5")) {
+				pc.getLblCarC5().setText(tf.getText());
+		        pc.getLblCarTC5().setText(InputTime);
+		        pc.getBtnC5().setBackground(Color.RED);
+		        pc.getBtnC5().setEnabled(false);
+		        setVisible(false);
+			}
+			if(Area.equals("C6")) {
+				pc.getLblCarC6().setText(tf.getText());
+		        pc.getLblCarTC6().setText(InputTime);
+		        pc.getBtnC6().setBackground(Color.RED);
+		        pc.getBtnC6().setEnabled(false);
+		        setVisible(false);
+			}
+			if(Area.equals("C7")) {
+				pc.getLblCarC7().setText(tf.getText());
+		        pc.getLblCarTC7().setText(InputTime);
+		        pc.getBtnC7().setBackground(Color.RED);
+		        pc.getBtnC7().setEnabled(false);
+		        setVisible(false);
+			}
+			if(Area.equals("C8")) {
+				pc.getLblCarC8().setText(tf.getText());
+		        pc.getLblCarTC8().setText(InputTime);
+		        pc.getBtnC8().setBackground(Color.RED);
+		        pc.getBtnC8().setEnabled(false);
+		        setVisible(false);
+			}
+			if(Area.equals("C9")) {
+				pc.getLblCarC9().setText(tf.getText());
+		        pc.getLblCarTC9().setText(InputTime);
+		        pc.getBtnC9().setBackground(Color.RED);
+		        pc.getBtnC9().setEnabled(false);
+		        setVisible(false);
+			}
+			if(Area.equals("C10")) {
+				pc.getLblCarC10().setText(tf.getText());
+		        pc.getLblCarTC10().setText(InputTime);
+		        pc.getBtnC10().setBackground(Color.RED);
+		        pc.getBtnC10().setEnabled(false);
+		        setVisible(false);
+			}
+        	}
+    } 
+    catch (SQLException e1) {
+        e1.printStackTrace();
+    	}
+    
+	}
+	else {
+		JOptionPane.showMessageDialog(null, "차량번호를 입력해주세요!","알림", JOptionPane.WARNING_MESSAGE);
+	}
+
+			
+		}
+		
+	}
+	}
+
+	
+	
+
+}

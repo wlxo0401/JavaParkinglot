@@ -1,0 +1,33 @@
+package Parkinglot;
+
+import java.awt.BorderLayout;
+import java.awt.Color;
+import java.awt.Dimension;
+import java.awt.Point;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.awt.event.MouseEvent;
+import java.awt.event.MouseListener;
+import java.awt.event.MouseMotionListener;
+
+import javax.swing.*;
+import java.sql.*;
+import java.util.Vector;
+
+public class FMC2 extends JFrame{
+
+	
+	public FMC2(String title) {
+	setTitle(title);
+	setSize(30, 30);
+	setLocationRelativeTo(null);
+	setVisible(true);
+		
+		
+	}
+	public static void main(String[] args) {
+		new FMC2("관리자 로그인");
+	}
+
+
+}
